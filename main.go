@@ -7,15 +7,21 @@ import (
 	"os"
 
 	"github.com/Od1nB/prompter/git"
+	"github.com/Od1nB/prompter/hostname"
 	"github.com/Od1nB/prompter/path"
 )
 
-var opts = []path.Option{}
+var containerEmoji = "🐋"
+
+var (
+	opts            = []path.Option{}
+	maxLen          = flag.Int("max", 40, "set the max amount of chars the first prompt line should be")
+	showContainer   = flag.Bool("incontainer", false, "display the "+containerEmoji+" emoji at the start of prompt if set")
+	displayHostname = flag.Bool("hostname", false, "display the hostname before the path")
+)
 
 func init() {
-	maxLen := flag.Int("max", 40, "set the max amount of chars the first prompt line should be")
 	flag.Parse()
-
 	if maxLen != nil {
 		opts = append(opts, path.WithMaxLen(*maxLen))
 	}
@@ -23,11 +29,26 @@ func init() {
 
 func main() {
 	var prompt string
+	if *showContainer {
+		prompt += containerEmoji
+	}
+
+	if *displayHostname {
+		hn, err := hostname.New()
+		if err != nil {
+			fmt.Println("⚡")
+			os.Exit(2)
+		}
+		prompt += hn.String()
+	}
+
 	path, err := path.New(opts...)
 	if err != nil {
 		fmt.Print("⚡")
+		os.Exit(2)
 	}
 	prompt += path.String()
+
 	if git.InRepo() {
 		g, err := git.New()
 		if err != nil {
