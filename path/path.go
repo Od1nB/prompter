@@ -1,7 +1,6 @@
 package path
 
 import (
-	"fmt"
 	"os/exec"
 	"slices"
 	"strings"
@@ -100,7 +99,6 @@ func (p Path) len() int {
 func (p *Path) removeFromBeginning() ([]string, bool) {
 	cpArr := slices.DeleteFunc(p.splits, emptyOrNone)
 	for ind, v := range cpArr {
-		fmt.Println(v, len(cpArr), ind+1)
 		switch {
 		case v == "..":
 			inds, ok := findTwoOccurrences(cpArr, "..")
