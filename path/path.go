@@ -54,7 +54,7 @@ func New(opts ...Option) (Path, error) {
 	// OSx /users/
 	case len(tmpSplits) >= 3 && strings.ToLower(tmpSplits[0]) == "users":
 		path.splits = append(path.splits, "~")
-		if len(tmpSplits) > 3 {
+		if len(tmpSplits) > 2 {
 			path.splits = append(path.splits, tmpSplits[2:]...)
 		}
 	case tmpSplits[0] == "home":
