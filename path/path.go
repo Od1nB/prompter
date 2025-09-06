@@ -53,20 +53,20 @@ func New(opts ...Option) (Path, error) {
 
 	switch {
 	// OSx /users/
-	case len(tmpSplits) >= 3 && strings.ToLower(tmpSplits[1]) == "users":
+	case len(tmpSplits) >= 3 && strings.ToLower(tmpSplits[0]) == "users":
 		path.splits = append(path.splits, "~")
 		if len(tmpSplits) > 3 {
-			path.splits = append(path.splits, tmpSplits[3:]...)
+			path.splits = append(path.splits, tmpSplits[2:]...)
 		}
 	case tmpSplits[0] == "home":
 		path.splits = append(path.splits, "~")
 		if len(tmpSplits) > 2 {
 			path.splits = append(path.splits, tmpSplits[2:]...)
 		}
-	case len(tmpSplits)>= 2 && strings.ToLower(tmpSplits[0]) =="var" && strings.ToLower(tmpSplits[1]) == "home":
+	case len(tmpSplits) >= 2 && strings.ToLower(tmpSplits[0]) == "var" && strings.ToLower(tmpSplits[1]) == "home":
 		path.splits = append(path.splits, "~")
 		if len(tmpSplits) > 3 {
-		  path.splits = append(path.splits, tmpSplits[3:]...)
+			path.splits = append(path.splits, tmpSplits[3:]...)
 		}
 	default:
 		path.splits = tmpSplits
