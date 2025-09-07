@@ -16,8 +16,10 @@ var containerEmoji = "🐋"
 var (
 	opts            = []path.Option{}
 	maxLen          = flag.Int("max", 40, "set the max amount of chars the first prompt line should be")
-	showContainer   = flag.Bool("incontainer", false, "display the "+containerEmoji+" emoji at the start of prompt if set")
+	showContainer   = flag.Bool("showcontainer", false, "display the "+containerEmoji+" emoji at the start of prompt if set")
 	displayHostname = flag.Bool("hostname", false, "display the hostname before the path")
+	showPath        = flag.Bool("showpath", true, "show the 'pwd'")
+	showGit         = flag.Bool("showgit", true, "show the current branch if in a git repo")
 )
 
 func init() {
@@ -42,20 +44,24 @@ func main() {
 		prompt += hn.String()
 	}
 
-	path, err := path.New(opts...)
-	if err != nil {
-		fmt.Print("⚡")
-		os.Exit(2)
-	}
-	prompt += path.String()
-
-	if git.InRepo() {
-		g, err := git.New()
+	if *showPath {
+		path, err := path.New(opts...)
 		if err != nil {
-			slog.Error("err parsing git ", "err", err)
+			fmt.Print("⚡")
 			os.Exit(2)
 		}
-		prompt += " " + g.String()
+		prompt += path.String()
+	}
+
+	if *showGit {
+		if git.InRepo() {
+			g, err := git.New()
+			if err != nil {
+				slog.Error("err parsing git ", "err", err)
+				os.Exit(2)
+			}
+			prompt += " " + g.String()
+		}
 	}
 	prompt += "\n⚡"
 
