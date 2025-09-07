@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/Od1nB/prompter/color"
 	"github.com/Od1nB/prompter/git"
 	"github.com/Od1nB/prompter/hostname"
 	"github.com/Od1nB/prompter/path"
@@ -49,6 +50,9 @@ func main() {
 		if err != nil {
 			fmt.Print("⚡")
 			os.Exit(2)
+		}
+		if *displayHostname {
+			prompt += color.Paint(color.Cyan, "@")
 		}
 		prompt += path.String()
 	}

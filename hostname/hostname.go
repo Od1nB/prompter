@@ -22,7 +22,7 @@ func New() (Host, error) {
 
 	return Host{
 		color: color.Cyan,
-		Str:   strings.TrimSpace(string(res)) + ":",
+		Str:   strings.TrimSpace(string(res)),
 	}, nil
 }
 
