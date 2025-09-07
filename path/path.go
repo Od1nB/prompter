@@ -14,7 +14,6 @@ type Path struct {
 	Options options
 	splits  []string
 	Color   color.Color
-	Str     string
 }
 
 type Option func(o *options)
@@ -47,12 +46,11 @@ func New(opts ...Option) (Path, error) {
 		Color:   color.BrightMagenta,
 		splits:  make([]string, 0, len(tmpSplits)),
 		Options: *o,
-		// Str: string(r)
 	}
 
 	switch {
 	// OSx /users/
-	case len(tmpSplits) >= 3 && strings.ToLower(tmpSplits[0]) == "users":
+	case len(tmpSplits) >= 2 && strings.ToLower(tmpSplits[0]) == "users":
 		path.splits = append(path.splits, "~")
 		if len(tmpSplits) > 2 {
 			path.splits = append(path.splits, tmpSplits[2:]...)
