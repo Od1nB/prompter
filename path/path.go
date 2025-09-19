@@ -49,6 +49,9 @@ func New(opts ...Option) (Path, error) {
 	}
 
 	switch {
+	// on / slice is empty
+	case len(tmpSplits) == 0:
+		path.splits = append(path.splits, "/")
 	// OSx /users/
 	case len(tmpSplits) >= 2 && strings.ToLower(tmpSplits[0]) == "users":
 		path.splits = append(path.splits, "~")
@@ -79,11 +82,16 @@ func New(opts ...Option) (Path, error) {
 
 func (p Path) String() string {
 	p.splits = slices.DeleteFunc(p.splits, emptyOrNone)
-	str := p.splits[0] + "/"
-	if len(p.splits) > 1 {
-		str = strings.Join(p.splits, "/") + "/"
+	switch {
+	case len(p.splits) == 1 && p.splits[0] != "/":
+		return color.Paint(p.Color, p.splits[0]+"/")
+	case len(p.splits) == 1:
+		return color.Paint(p.Color, p.splits[0])
+	case len(p.splits) > 1:
+		return color.Paint(p.Color, strings.Join(p.splits, "/")+"/")
+	default:
+		return color.Paint(p.Color, "/")
 	}
-	return color.Paint(p.Color, str)
 }
 
 func (p Path) len() int {
