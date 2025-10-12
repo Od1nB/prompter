@@ -1,3 +1,4 @@
+// Package path defines functions for making a path string. The default is using the pwd command
 package path
 
 import (

@@ -1,3 +1,4 @@
+// Package color defines some helpers for coloring a string in the terminal
 package color
 
 import "fmt"

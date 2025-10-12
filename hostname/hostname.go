@@ -1,3 +1,4 @@
+// Package hostname can create a string based on the hostname where the functions are ran
 package hostname
 
 import (

@@ -1,3 +1,4 @@
+// Package git has functions for creating a string about the git context from the current working dir
 package git
 
 import (
