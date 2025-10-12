@@ -3,11 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/Od1nB/prompter/color"
 	"github.com/Od1nB/prompter/git"
 	"github.com/Od1nB/prompter/hostname"
 	"github.com/Od1nB/prompter/path"
+
+	"golang.org/x/term"
 )
 
 const containerEmoji = "🐋"
@@ -34,9 +37,10 @@ func main() {
 }
 
 type prompt struct {
-	out  string
-	def  string
-	errs []error
+	width int
+	out   string
+	def   string
+	errs  []error
 }
 
 type printPrompt func() (string, error)
@@ -88,6 +92,13 @@ func New() prompt {
 	p := prompt{
 		def:  "⚡",
 		errs: make([]error, 0),
+	}
+
+	w, _, err := term.GetSize(int(os.Stdin.Fd()))
+	if err != nil {
+		p.errs = append(p.errs, err)
+	} else {
+		p.width = w
 	}
 
 	for _, pr := range []printPrompt{containerPrompt, hostnamePrompt, pathPrompt, gitPrompt} {
