@@ -12,42 +12,40 @@ import (
 var pwdCMD = exec.Command("pwd")
 
 type Path struct {
-	Options options
-	splits  []string
-	Color   color.Color
+	Show           bool
+	splits         []string
+	Color          color.Color
+	HostnamePrefix bool
 }
 
-type Option func(o *options)
+type Option func(o *Path)
 
-type options struct {
-	maxLen int
-}
-
-func WithMaxLen(i int) Option {
-	return func(o *options) {
-		o.maxLen = i
+func WithShow(b bool) Option {
+	return func(o *Path) {
+		o.Show = b
 	}
 }
 
-func New(opts ...Option) (Path, error) {
+func New(withHostname bool, opts ...Option) (*Path, error) {
+	path := &Path{
+		Color:          color.BrightMagenta,
+		Show:           false,
+		HostnamePrefix: withHostname,
+	}
+	for _, f := range opts {
+		f(path)
+	}
+
+	if !path.Show {
+		return nil, nil
+	}
+
 	pwd, err := pwdCMD.Output()
 	if err != nil {
-		return Path{}, err
-	}
-
-	o := &options{
-		maxLen: 40,
-	}
-
-	for _, f := range opts {
-		f(o)
+		return nil, err
 	}
 	tmpSplits := slices.DeleteFunc(strings.Split(strings.TrimSpace(string(pwd)), "/"), emptyOrNone)
-	path := Path{
-		Color:   color.BrightMagenta,
-		splits:  make([]string, 0, len(tmpSplits)),
-		Options: *o,
-	}
+	path.splits = make([]string, 0, len(tmpSplits))
 
 	switch {
 	// on / slice is empty
@@ -73,11 +71,6 @@ func New(opts ...Option) (Path, error) {
 		path.splits = tmpSplits
 	}
 
-	change := true
-	for path.Len() > path.Options.maxLen && len(path.splits) > 1 && change {
-		path.splits, change = path.removeFromBeginning()
-	}
-
 	return path, nil
 }
 
@@ -91,15 +84,19 @@ func (p *Path) Reduce() (int, bool) {
 
 func (p Path) String() string {
 	p.splits = slices.DeleteFunc(p.splits, emptyOrNone)
+	var pathPrefix string
+	if p.HostnamePrefix {
+		pathPrefix += color.Paint(color.Cyan, "@")
+	}
 	switch {
 	case len(p.splits) == 1 && p.splits[0] != "/":
-		return color.Paint(p.Color, p.splits[0]+"/")
+		return pathPrefix + color.Paint(p.Color, p.splits[0]+"/")
 	case len(p.splits) == 1:
-		return color.Paint(p.Color, p.splits[0])
+		return pathPrefix + color.Paint(p.Color, p.splits[0])
 	case len(p.splits) > 1:
-		return color.Paint(p.Color, strings.Join(p.splits, "/")+"/")
+		return pathPrefix + color.Paint(p.Color, strings.Join(p.splits, "/")+"/")
 	default:
-		return color.Paint(p.Color, "/")
+		return pathPrefix + color.Paint(p.Color, "/")
 	}
 }
 

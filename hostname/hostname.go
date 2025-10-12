@@ -15,13 +15,16 @@ type Host struct {
 
 var hostNameCMD = exec.Command("hostname")
 
-func New() (Host, error) {
+func New(show bool) (*Host, error) {
+	if !show {
+		return nil, nil
+	}
 	res, err := hostNameCMD.Output()
 	if err != nil {
-		return Host{}, err
+		return nil, err
 	}
 
-	return Host{
+	return &Host{
 		color: color.Cyan,
 		Str:   strings.TrimSpace(string(res)),
 	}, nil

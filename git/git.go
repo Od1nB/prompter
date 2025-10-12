@@ -25,17 +25,20 @@ type Git struct {
 	statuses []Porcelain
 }
 
-func New() (Git, error) {
-	var g Git
+func New(show bool) (*Git, error) {
+	if !show {
+		return nil, nil
+	}
+	g := new(Git)
 
-	branch, err := branchCMD.Output()
-	if err == nil && !strings.Contains("fatal", string(branch)) {
-		g.branch = strings.TrimSpace(string(branch))
+	bs, err := branchCMD.Output()
+	if err == nil && !strings.Contains("fatal", string(bs)) {
+		g.branch = strings.TrimSpace(string(bs))
 	}
 
 	res, err := statusCMD.Output()
 	if err != nil {
-		return Git{}, err
+		return nil, err
 	}
 
 	g.statuses = parseLines(res)
@@ -53,6 +56,14 @@ func InRepo() bool {
 	}
 	b, _ := strconv.ParseBool(strings.TrimSpace(string(resp)))
 	return b
+}
+
+func (g Git) Len() int {
+	return len(g.String())
+}
+
+func (g Git) Reduce() (int, bool) {
+	return 0, false
 }
 
 func (g Git) String() string {
