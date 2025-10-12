@@ -10,7 +10,7 @@ import (
 	"github.com/Od1nB/prompter/path"
 )
 
-var containerEmoji = "🐋"
+const containerEmoji = "🐋"
 
 var (
 	opts          = []path.Option{}
