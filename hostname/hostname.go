@@ -29,3 +29,17 @@ func New() (Host, error) {
 func (h Host) String() string {
 	return color.Paint(h.color, h.Str)
 }
+
+func (h Host) Len() int {
+	return len(h.Str)
+}
+
+func (h *Host) Reduce() (int, bool) {
+	if h.Len() <= 1 {
+		return 0, false
+	}
+
+	prev := h.Len()
+	h.Str = h.Str[:len(h.Str)/2]
+	return prev - h.Len(), true
+}

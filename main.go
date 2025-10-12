@@ -17,7 +17,6 @@ const containerEmoji = "🐋"
 
 var (
 	opts          = []path.Option{}
-	maxLen        = flag.Int("max", 40, "set the max amount of chars the first prompt line should be")
 	showContainer = flag.Bool("showcontainer", false, "display the "+containerEmoji+" emoji at the start of prompt if set")
 	showHostname  = flag.Bool("hostname", false, "display the hostname before the path")
 	showPath      = flag.Bool("showpath", true, "show the 'pwd'")
@@ -26,9 +25,6 @@ var (
 
 func init() {
 	flag.Parse()
-	if maxLen != nil {
-		opts = append(opts, path.WithMaxLen(*maxLen))
-	}
 }
 
 func main() {

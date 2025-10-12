@@ -73,11 +73,19 @@ func New(opts ...Option) (Path, error) {
 	}
 
 	change := true
-	for path.len() > path.Options.maxLen && len(path.splits) > 1 && change {
+	for path.Len() > path.Options.maxLen && len(path.splits) > 1 && change {
 		path.splits, change = path.removeFromBeginning()
 	}
 
 	return path, nil
+}
+
+func (p *Path) Reduce() (int, bool) {
+	var canReduce bool
+	before := p.Len()
+	p.splits, canReduce = p.removeFromBeginning()
+
+	return before - p.Len(), canReduce
 }
 
 func (p Path) String() string {
@@ -94,7 +102,7 @@ func (p Path) String() string {
 	}
 }
 
-func (p Path) len() int {
+func (p Path) Len() int {
 	i := 0
 	for _, v := range p.splits {
 		i += len(v) + 1
