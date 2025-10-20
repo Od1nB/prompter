@@ -31,14 +31,15 @@ func New(show bool) (*Git, error) {
 	if !show {
 		return nil, nil
 	}
-	g := new(Git)
-	g.location = location()
 	res, err := statusCMD.Output()
 	if err != nil {
 		return nil, err
 	}
 
-	g.statuses = parseLines(res)
+	g := &Git{
+		location: location(),
+		statuses: parseLines(res),
+	}
 	if len(g.statuses) > 0 {
 		g.Dirty = true
 	}
