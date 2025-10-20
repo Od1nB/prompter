@@ -16,12 +16,14 @@ var (
 	isRepoCMD = exec.Command("git", "rev-parse", "--is-inside-work-tree")
 	statusCMD = exec.Command("git", "status", "--porcelain=v1")
 	branchCMD = exec.Command("git", "branch", "--show-current")
+	tagCMD    = exec.Command("git", "describe", "--tags", "--exact-match", "HEAD")
+	commitCMD = exec.Command("git", "rev-parse", "--short", "HEAD")
 	Trash     = "🗑️"
 )
 
 type Git struct {
 	Dirty    bool
-	branch   string
+	location string
 	statuses []Porcelain
 }
 
@@ -30,12 +32,7 @@ func New(show bool) (*Git, error) {
 		return nil, nil
 	}
 	g := new(Git)
-
-	bs, err := branchCMD.Output()
-	if err == nil && !strings.Contains("fatal", string(bs)) {
-		g.branch = strings.TrimSpace(string(bs))
-	}
-
+	g.location = location()
 	res, err := statusCMD.Output()
 	if err != nil {
 		return nil, err
@@ -68,8 +65,8 @@ func (g Git) Reduce() (int, bool) {
 
 func (g Git) String() string {
 	var prompt string
-	if g.branch != "" {
-		prompt += color.Paint(color.BrightBlue, fmt.Sprintf("🔀%s ", g.branch))
+	if g.location != "" {
+		prompt += g.location
 	}
 	if g.Dirty {
 		prompt += Trash
@@ -115,4 +112,29 @@ func parseLines(b []byte) []Porcelain {
 		res = append(res, ConvPorcelain(l))
 	}
 	return res
+}
+
+func location() string {
+	if res, err := tagCMD.Output(); err == nil &&
+		len(res) != 0 &&
+		!strings.Contains("fatal:", string(res)) {
+		return color.Paint(color.Yellow,
+			strings.TrimSpace("🏷️"+string(res)))
+	}
+
+	if res, err := branchCMD.Output(); err == nil &&
+		len(res) != 0 &&
+		!strings.Contains("fatal:", string(res)) {
+		return color.Paint(color.BrightBlue,
+			strings.TrimSpace("🔀"+string(res)))
+	}
+
+	if res, err := commitCMD.Output(); err == nil &&
+		len(res) != 0 &&
+		!strings.Contains("fatal:", string(res)) {
+		return color.Paint(color.BrightRed,
+			strings.TrimSpace("⁉️"+string(res)))
+	}
+
+	return ""
 }
